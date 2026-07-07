@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Titanic_sim</title>
+    <style>
+        body {
+            font-family: Georgia, 'Times New Roman', serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .main-container {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        /* Left column: the input form */
+        .form-column {
+            flex: 1;
+            min-width: 320px;
+        }
+        .form-column table td {
+            padding: 6px 8px;
+        }
+        /* Right column: ship image + (prediction box / character image) row */
+        .image-column {
+            flex: 1;
+            min-width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .ship-image-box img {
+            width: 100%;
+            height: auto;
+            border-radius: 6px;
+            display: block;
+        }
+        .bottom-row {
+            display: flex;
+            gap: 16px;
+        }
+        .prediction-box {
+            flex: 2;
+            border: 2px solid #333;
+            border-radius: 6px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 1.1em;
+            min-height: 160px;
+        }
+        .character-image-box {
+            flex: 1;
+            border: 2px solid #333;
+            border-radius: 6px;
+            padding: 0px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-height: 200px;
+            overflow: hidden;
+        }
+        .character-image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <form id="submit_data" method="POST" action="{{ url_for('get_user_input') }}">
+        <div class="main-container">
+
+            <!-- LEFT COLUMN: form inputs + button (areas 5 and 4) -->
+            <div class="form-column">
+                <h1><b>Design Your Titanic Character</b></h1>
+
+                <table>
+                    <tr>
+                        <td><label>Age of Character</label></td>
+                        <td>
+                            <select class="form-select" name="inputed_Age">
+                            {% for age in range(0, 81) %}
+                            <option value="{{ age }}" {% if age == inputed_Age|int %}selected{% endif %}>{{ age }}</option>
+                            {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label>Gender of Character</label></td>
+                        <td>
+                            <select class="form-select" name="inputed_gender">
+                            {% for g in ["Male", "Female"] %}
+                            <option value="{{ g }}" {% if g == inputed_gender %}selected{% endif %}>{{ g }}</option>
+                            {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td><label>Title of Character</label></td>
+                        <td>
+                            <select class="form-select" name="inputed_title">
+                            {% for title in ['Master', 'Miss', 'Mlle', "Mr", "Mrs", "Rev", "Unknown"] %}
+                            <option value="{{ title }}" {% if title == inputed_title %}selected{% endif %}>{{ title }}</option>
+                            {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label>Number of Characters Siblings/Spouses</label></td>
+                        <td>
+                        <select class="form-select" name="inputed_sibsp">
+                            {% for n in range(0, 10) %}
+                            <option value="{{ n }}" {% if n == inputed_sibsp|int %}selected{% endif %}>{{ n }}</option>
+                            {% endfor %}
+                        </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label>Number of Characters Parents/Children</label></td>
+                        <td>
+                        <select class="form-select" name="inputed_parch">
+                            {% for p in range(0, 10) %}
+                            <option value="{{ p }}" {% if p == inputed_parch|int %}selected{% endif %}>{{ p }}</option>
+                            {% endfor %}
+                        </select>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td><label>Port of Embarkation</label></td>
+                        <td>
+                            <select class="form-select" name="inputed_embarked">
+                            {% for port in ['Cherbourg', 'Queenstown', 'Southampton'] %}
+                            <option value="{{ port }}" {% if port == inputed_embarked %}selected{% endif %}>{{ port }}</option>
+                            {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td><label>Ship Class of character</label></td>
+                        <td>
+                            <select class="form-select" name="inputed_class">
+                            {% for c in ['First', 'Second', 'Third'] %}
+                                <option value="{{ c }}" {% if c == inputed_class %}selected{% endif %}>{{ c }}</option>
+                            {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+
+                    <!-- Button row (area 4) -->
+                    <tr>
+                        <td><button class="btn btn-primary" type="submit" style="width:150px; height:50px;">Check if they survived</button></td>
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- RIGHT COLUMN: ship image (area 2) + prediction box (area 3) + character image (area 1) -->
+            <div class="image-column">
+
+                <!-- Area 2: static image of the Titanic docked in port -->
+                <div class="ship-image-box">
+                    <img src="{{ url_for('static', filename='images/titanic_docked.png') }}" alt="Titanic docked in port">
+                </div>
+
+                <div class="bottom-row">
+
+                    <!-- Area 3: prediction output, now properly placed in its own box -->
+                    <div class="prediction-box">
+                        {% if model_output %}
+                            {{ model_results }}<br>
+                            {{ model_output }}
+                        {% else %}
+                            Fill in your character and click "Check if they survived" to see their odds.
+                        {% endif %}
+                    </div>
+
+                    <!-- Area 1: dynamic character image(s) based on selections -->
+                    <div class="character-image-box">
+                        {% if inputed_gender == 'Male' %}
+                            <img src="{{ url_for('static', filename='images/man.png') }}" alt="Male character">
+                        {% elif inputed_gender == 'Female' %}
+                            <img src="{{ url_for('static', filename='images/female.png') }}" alt="Female character">
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </form>
+</body>
+</html>
