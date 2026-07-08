@@ -63,3 +63,5 @@ Hospitals could use a model like this as a **supporting diagnostic tool**, helpi
 4. This starts a local web server. Open your browser and navigate to:
 http://127.0.0.1:5000
 5. Fill in the patient's clinical details in the form and click **"Predict"** to get the model's risk assessment.
+
+Check out the deployed site [here](https://analystlab-africa-ml-projects.onrender.com/)
