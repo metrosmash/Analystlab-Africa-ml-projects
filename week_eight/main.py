@@ -18,34 +18,33 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
-# Default Character constants
-DEFAULT_EMBARKED = 'Southampton'
-DEFAULT_FARE = 33
+# Default Character constants 11
 DEFAULT_AGE = 30
 DEFAULT_GENDER = 'Female'
-DEFAULT_TITLE = 'Mrs.'
-DEFAULT_CLASS = 'Second'
-DEFAULT_CABIN = 'C'
-DEFAULT_SIBSP = 0
-DEFAULT_PARCH = 0
+DEFAULT_CHEST_PAIN_TYPE = 'Atypical Angina'
+DEFAULT_RESTING_BP_S = 99
+DEFAULT_CHOLESTEROL = 100
+DEFAULT_FASTING_BLOOD_SUGAR = 'Above 120mg/dL'
+DEFAULT_RESTING_ECG  = 'ST-T Wave Abnormality'
+DEFAULT_MAX_HEART_RATE = 150
+DEFAULT_EXERCISE_ANGINA = 'Not Present'
+DEFAULT_OLDPEAK = 2.2
+DEFAULT_ST_SLOPE  = 'Upsloping'
+
+
 
 # Get absolute path to project directory
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_DIR = os.path.join(BASE_DIR, 'assets', 'logreg.safetensors')
+MODEL_DIR = os.path.join(BASE_DIR, 'assets/model', 'random_forest_model.joblib')
 
+# 
 def load_model():
     try:
-        # loading the model 
-        loaded_tensors = load_file(MODEL_DIR)
-
-        revived_model = LogisticRegression()
-
-        revived_model.classes_ = loaded_tensors["classes"]
-        revived_model.coef_ = loaded_tensors ["coef"]
-        revived_model.intercept_ = loaded_tensors["intercept"]
+        # loading the model
+        rf_model = joblib.load(MODEL_DIR)
 
         logger.info("## Model loaded sucessfully")
-        return revived_model
+        return rf_model
     except FileNotFoundError as e:
         logger.error(f"## Failed to load the model : {e}")
         logger.error("make sure the model is in the right folder")
@@ -58,80 +57,83 @@ with app.app_context():
 def get_user_input():
 
     if request.method == 'POST':
-        inputed_embarked = request.form['inputed_embarked']
         inputed_Age = request.form['inputed_Age']
         inputed_gender = request.form['inputed_gender']
-        inputed_title = request.form['inputed_title']
-        inputed_class = request.form['inputed_class']
-        inputed_sibsp = request.form['inputed_sibsp']
-        inputed_parch = request.form['inputed_parch']
+        inputed_cp = request.form['inputed_cp']        
+        inputed_rbp = request.form['inputed_rbp']
+        inputed_cholestrol = request.form['inputed_cholestrol']
+        inputed_fbs = request.form['inputed_fbs']
+        inputed_recg = request.form['inputed_recg']
+        inputed_mhr = request.form['inputed_mhr']
+        inputed_EA = request.form['inputed_EA']
+        inputed_Oldpeak = request.form['inputed_Oldpeak']
+        inputed_sts = request.form['inputed_sts']   
 
         # core needed integers 
         Age = int(inputed_Age)
-        is_female = 1 if inputed_gender == "Female" else 0
-        sibsp = int(inputed_sibsp)
-        parch = int(inputed_parch)
+        sex = 0 if inputed_gender == "Female" else 1
+        resting_bp_s = float(inputed_rbp)
+        cholesterol = float(inputed_cholestrol)
+        fasting_blood_sugar  = 1 if inputed_fbs == "Above 120mg/dL" else 0
+        max_heart_rate = int(inputed_mhr)
+        exercise_angina = 1 if inputed_EA == "Exercise-Induced Angina" else 0 
+        oldpeak = float(inputed_Oldpeak)
 
-        # is_alone column 
-        is_alone = 0 if sibsp == 0 and parch == 0 else 1 
-        family_size = sibsp + parch + 1
-        family_bin_1 = 1 if family_size >= 2 and family_size <=3 else 0
-        family_bin_2 = 1 if family_size >= 4 else 0
 
-        # Port of Embarkation 
-        Embarked_Q       = 0
-        Embarked_S       = 0
-        if inputed_embarked[0] == 'Q':
-            Embarked_Q = 1
-        elif inputed_embarked[0] == 'S':
-            Embarked_S = 1
+        # Chest pain type column 
+        # when cp_2,_3,_4 = 0  then cp_1 is equal to 1
+        cp_2 = 0
+        cp_3 = 0
+        cp_4 = 0
+        if inputed_cp == "Atypical Angina":
+            cp_2 = 1
+        elif inputed_cp == "Non-Anginal Pain":
+            cp_3 = 1
+        elif inputed_cp == "Asymptomatic":
+            cp_4 = 1
 
-        # Ship Class
-        Pclass_2 = 0
-        Pclass_3  = 0
-        if inputed_class == 'Second':
-            Pclass_2 = 1
-        elif inputed_class == 'Third':
-            Pclass_3 = 1
+        # Resting ecg column 
+        # when ecg_1, _2 = 0  then ecg_0 is equal to 1
+        ecg_1 = 0
+        ecg_2 = 0
+        if inputed_recg == "ST-T Wave Abnormality":
+            ecg_1 = 1
+        elif inputed_recg == "Left Ventricular Hypertrophy":
+            ecg_2 = 1
+         
+        # ST Slope column 
+        # when slope_flat, upsloping = 0 then downsloping is equal to 1 
+        slope_flat = 0
+        slope_upsloping = 0
+        if inputed_sts == "Flat":
+            slope_flat = 1
+        elif inputed_sts == "Upsloping":
+            slope_upsloping = 1
 
-        # Title
-        title_Master  = 0
-        title_Miss    = 0
-        title_Mr      = 0
-        title_Mrs     = 0
-        title_Rev     = 0
-        title_Mlle    = 0
-        title_Unknown = 0
-        title_nan     = 0
-        title_map = {
-            'Master': 'title_Master',
-            'Miss':   'title_Miss',
-            'Mr':     'title_Mr',
-            'Mlle' : 'title_Mlle',
-            'Mrs':    'title_Mrs',
-            'Rev':    'title_Rev',
-            'Unknown': 'title_Unknown',
-        }
-        if inputed_title in title_map:
-            locals()[title_map[inputed_title]]  # resolve name
-        # Use explicit assignment to avoid locals() mutation issues
-        if inputed_title == 'Master': title_Master = 1
-        elif inputed_title == 'Miss': title_Miss = 1
-        elif inputed_title == 'Mr':   title_Mr = 1
-        elif inputed_title == 'Mlle' : title_Mlle = 1
-        elif inputed_title == 'Mrs':  title_Mrs = 1
-        elif inputed_title == 'Rev':  title_Rev = 1
-        elif inputed_title == 'Unknown': title_Unknown = 1
+        # Age Bin columns here 
+        # when all other bins are 0 under_40  is equal to 1 
+        age_40_55 = 0
+        age_55_65 = 0
+        age_over_65 = 0
+        if Age > 40 | Age < 55:
+            age_40_55 = 1
+        elif Age > 55 | Age < 65:
+            age_55_65 = 1
+        elif Age > 65:
+            age_over_65 = 1
+
+           
 
         # Build feature vector matching training data format
-        user_passenger = [[
-            Age, is_female, is_alone, Embarked_Q, Embarked_S,
-            title_Master, title_Miss,title_Mlle, title_Mr, title_Mrs, title_Rev,
-            title_Unknown,family_bin_1,family_bin_2, Pclass_2, Pclass_3, 
+        patients_diagnosis = [[
+            Age, sex, resting_bp_s, cholesterol, fasting_blood_sugar,
+            max_heart_rate, exercise_angina, oldpeak, cp_2, cp_3, cp_4,
+            ecg_1,ecg_2,slope_flat, slope_upsloping, age_40_55, age_55_65,
+            age_over_65
         ]]
 
         # work on this
-        Y_pred = model.predict_proba(user_passenger)
+        Y_pred = model.predict_proba(patients_diagnosis)
         survival_pct = Y_pred[0][1] * 100
         logger.info(survival_pct)
         model_output = f'Your Character has {survival_pct:.1f}% Chance of Surviving!'
@@ -139,25 +141,33 @@ def get_user_input():
             model_output = model_output,
             inputed_Age = inputed_Age,
             inputed_gender = inputed_gender,
-            inputed_title =inputed_title,
-            inputed_embarked = inputed_embarked,
-            inputed_class = inputed_class,
-            inputed_sibsp = inputed_sibsp,
-            inputed_parch = inputed_parch,) 
+            inputed_cp =inputed_cp,
+            inputed_rbp = inputed_rbp,
+            inputed_cholestrol = inputed_cholestrol,
+            inputed_fbs = inputed_fbs,
+            inputed_recg = inputed_recg,
+            inputed_mhr = inputed_mhr,
+            inputed_EA = inputed_EA,
+            inputed_Oldpeak = inputed_Oldpeak,
+            inputed_sts = inputed_sts) 
     else:
         return render_template("index.html",
             model_output = " ",
-            inputed_Age = DEFAULT_AGE,
-            inputed_embarked = DEFAULT_EMBARKED,           
+            inputed_Age = DEFAULT_AGE,           
             inputed_gender=DEFAULT_GENDER,
-            inputed_title=DEFAULT_TITLE,
-            inputed_class=DEFAULT_CLASS,
-            inputed_sibsp=DEFAULT_SIBSP,
-            inputed_parch=DEFAULT_PARCH)
+            inputed_cp = DEFAULT_CHEST_PAIN_TYPE,
+            inputed_rbp = DEFAULT_RESTING_BP_S,
+            inputed_cholestrol = DEFAULT_CHOLESTEROL,
+            inputed_fbs = DEFAULT_FASTING_BLOOD_SUGAR,
+            inputed_recg = DEFAULT_RESTING_ECG,
+            inputed_mhr = DEFAULT_MAX_HEART_RATE,
+            inputed_EA = DEFAULT_EXERCISE_ANGINA,
+            inputed_Oldpeak = DEFAULT_OLDPEAK,
+            inputed_sts = DEFAULT_ST_SLOPE)
 
 
 if __name__ == '__main__':
-    logger.info("Titanic flask api Starting")
+    logger.info("Heart Disease Flask Api Starting")
 
     app.run(
         debug = False
