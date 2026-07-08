@@ -176,5 +176,5 @@ if __name__ == '__main__':
     logger.info("Heart Disease Flask Api Starting")
 
     app.run(
-        debug = True
+        debug = False
     )
