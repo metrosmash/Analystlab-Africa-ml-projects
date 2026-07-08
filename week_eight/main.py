@@ -140,7 +140,7 @@ def get_user_input():
         Y_pred = model.predict_proba(patients_diagnosis)
         survival_pct = Y_pred[0][1] * 100
         logger.info(survival_pct)
-        model_output = f'{survival_pct:.1f}% Positive'
+        model_output = f'Patient is: {survival_pct:.1f}% Positive'
         return render_template("index.html",
             model_output = model_output,
             inputed_Age = inputed_Age,
