@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Titanic_sim</title>
+    <title>Heart Disease Diagnoser</title>
 </head>
 <body>
     <form id="submit_data" method = "POST" action="{{ url_for('get_user_input') }}">
@@ -11,13 +11,13 @@
             <!--The main Header -->
             <tr>
                 <td width="300px" style="text-align:center">
-                    <h1><b>Design Your Titanic Character</b></h1>
+                    <h1><b>Heart Disease Checker</b></h1>
                 </td>
             </tr>
                 <td>
                     <table>
                        <tr>
-                            <td><label>Age of Character</label></td>
+                            <td><label>Age of Patient</label></td>
                             <td>
                                 <select class="form-select" name="inputed_Age">
                                 {% for age in range(0, 81) %}
@@ -27,77 +27,119 @@
                             </td>
                         </tr>
                         <tr>
-                            <td><label>Gender of Character</label></td>
+                            <td><label>Gender of Patient</label></td>
                             <td>
                                 <select class="form-select" name="inputed_gender">
                                 {% for g in ["Male", "Female"] %}
-                                <option value="{{ g }}" {% if age == inputed_gender %}selected{% endif %}>{{ g }}</option>
+                                <option value="{{ g }}" {% if g == inputed_gender %}selected{% endif %}>{{ g }}</option>
                                 {% endfor %}
                                 </select>
                             </td>
                         </tr>
 
                          <tr>
-                            <td><label>Title of Character</label></td>
+                            <td><label>Chest pain diagnosis of Patient</label></td>
                             <td>
-                                <select class="form-select" name="inputed_title">
-                                {% for title in ['Master', 'Miss', 'Mlle', "Mr", "Mrs", "Rev", "Unknown"] %}
-                                <option value="{{ title }}" {% if title == inputed_title %}selected{% endif %}>{{ title }}</option>
+                                <select class="form-select" name="inputed_cp">
+                                {% for cp in ['Typical Angina', 'Atypical Angina', 'Non-Anginal Pain', 'Asymptomatic'] %}
+                                <option value="{{ cp }}" {% if cp == inputed_cp %}selected{% endif %}>{{ cp }}</option>
                                 {% endfor %}
                                 </select>
                             </td>
                         </tr>
                         <tr>
-                            <td><label>Number of Characters Siblings/Spouses</label></td>
+                            <td><label>Patient's Resting Blood Pressure</label></td>
                             <td>
-                            <select class="form-select" name="inputed_sibsp">
-                                {% for n in range(0, 10) %}
-                                <option value="{{ n }}" {% if n == inputed_sibsp|int %}selected{% endif %}>{{ n }}</option>
+                            <select class="form-select" name="inputed_rbp">
+                                {% for n in range(80, 200) %}
+                                <option value="{{ n }}" {% if n == inputed_rbp|int %}selected{% endif %}>{{ n }}</option>
                                 {% endfor %}
                             </select>
                             </td>
                         </tr>
                         <tr>
-                            <td><label>Number of Characters Parents/Children</label></td>
+                            <td><label>Patient's cholesterol level</label></td>
                             <td>
-                            <select class="form-select" name="inputed_parch">
-                                {% for p in range(0, 10) %}
-                                <option value="{{ p }}" {% if n == inputed_parch|int %}selected{% endif %}>{{ p }}</option>
+                            <select class="form-select" name="inputed_cholestrol">
+                                {% for n in range(85, 600) %}
+                                <option value="{{ n }}" {% if n == inputed_cholestrol|int %}selected{% endif %}>{{ n }}</option>
                                 {% endfor %}
                             </select>
                             </td>
                         </tr>
-            
-
+                        
                         <tr>
-                            <td><label>Port of Embarkation</label></td>
+                            <td><label>Patient's Fasting Blood sugar level</label></td>
                             <td>
-                                <select class="form-select" name="inputed_embarked">
-                                {% for port in ['Cherbourg', 'Queenstown', 'Southampton'] %}
-                                <option value="{{ port }}" {% if port == inputed_embarked %}selected{% endif %}>{{ port }}</option>
+                                <select class="form-select" name="inputed_fbs">
+                                {% for f in ['Present', 'Not Present'] %}
+                                <option value="{{ f }}" {% if f == inputed_fbs %}selected{% endif %}>{{ f }}</option>
+                                {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td><label>Patient's Resting ECG</label></td>
+                            <td>
+                                <select class="form-select" name="inputed_recg">
+                                {% for recg in ['Normal', 'ST-T Wave Abnormality','Left Ventricular Hypertrophy'] %}
+                                <option value="{{ recg }}" {% if recg == inputed_recg %}selected{% endif %}>{{ recg }}</option>
                                 {% endfor %}
                                 </select>
                             </td>
                         </tr>
 
                         <tr>
-                            <td><label>Ship Class of character </label></td>
+                            <td><label>Patient's Max Heart Rate</label></td>
                             <td>
-                                <select class="form-select" name="inputed_class">
-                                {% for c in ['First', 'Second', 'Third'] %}
-                                    <option value="{{ c }}" {% if c == inputed_class %}selected{% endif %}>{{ c }}</option>
+                            <select class="form-select" name="inputed_mhr">
+                                {% for n in range(60, 202) %}
+                                <option value="{{ n }}" {% if n == inputed_mhr|int %}selected{% endif %}>{{ n }}</option>
+                                {% endfor %}
+                            </select>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td><label>Patient's Excercise Angina</label></td>
+                            <td>
+                                <select class="form-select" name="inputed_EA">
+                                {% for ea in ['Present', 'Not Present'] %}
+                                <option value="{{ ea }}" {% if ea == inputed_EA %}selected{% endif %}>{{ ea }}</option>
                                 {% endfor %}
                                 </select>
                             </td>
                         </tr>
 
+                        <tr>
+                            <td><label>Patient's Oldpeak</label></td>
+                            <td>
+                            <select class="form-select" name="inputed_Oldpeak">
+                                {% for n in range(-2.6, 6.2) %}
+                                <option value="{{ n }}" {% if n == inputed_Oldpeak|int %}selected{% endif %}>{{ n }}</option>
+                                {% endfor %}
+                            </select>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td><label>Patient's ST Slope</label></td>
+                            <td>
+                                <select class="form-select" name="inputed_sts">
+                                {% for sts in ['Upsloping', 'Flat','Downsloping'] %}
+                                <option value="{{ sts }}" {% if sts == inputed_sts %}selected{% endif %}>{{ sts }}</option>
+                                {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
                          <td>{{ model_results }}<br>
                             {{model_output}}
                         </td>
                         
                         <!-- Button row -->
                         <tr>
-                            <td><button class="btn btn-primary" type="submit" style="width:150px; height:50px;">Check if they survived</button></td>
+                            <td><button class="btn btn-primary" type="submit" style="width:150px; height:50px;">Check the Heart diesese probability</button></td>
                             <td></td>
                             <td></td>
                         </tr>
