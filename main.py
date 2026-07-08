@@ -121,7 +121,7 @@ def get_user_input():
         age_over_65 = 0
         if Age < 40:
             age_under_40 = 1
-        elif Age > 55 | Age < 65:
+        elif Age > 55 or Age < 65:
             age_55_65 = 1
         elif Age > 65:
             age_over_65 = 1
