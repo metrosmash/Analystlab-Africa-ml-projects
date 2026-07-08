@@ -31,11 +31,15 @@ DEFAULT_EXERCISE_ANGINA = 'Not Present'
 DEFAULT_OLDPEAK = 2.2
 DEFAULT_ST_SLOPE  = 'Upsloping'
 
+def float_range(start, stop, step):
+    while start < stop:
+        yield round(start, 2)  # Adjust precision as needed
+        start += step
 
 
 # Get absolute path to project directory
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_DIR = os.path.join(BASE_DIR, 'assets/model', 'random_forest_model.joblib')
+MODEL_DIR = os.path.join(BASE_DIR, 'assets/model', 'balanced_bagging_rf_model.joblib')
 
 # 
 def load_model():
@@ -111,12 +115,12 @@ def get_user_input():
             slope_upsloping = 1
 
         # Age Bin columns here 
-        # when all other bins are 0 under_40  is equal to 1 
-        age_40_55 = 0
+        # when all other bins are 0 40 to 55  is equal to 1 
+        age_under_40 = 0
         age_55_65 = 0
         age_over_65 = 0
-        if Age > 40 | Age < 55:
-            age_40_55 = 1
+        if Age < 40:
+            age_under_40 = 1
         elif Age > 55 | Age < 65:
             age_55_65 = 1
         elif Age > 65:
@@ -128,15 +132,15 @@ def get_user_input():
         patients_diagnosis = [[
             Age, sex, resting_bp_s, cholesterol, fasting_blood_sugar,
             max_heart_rate, exercise_angina, oldpeak, cp_2, cp_3, cp_4,
-            ecg_1,ecg_2,slope_flat, slope_upsloping, age_40_55, age_55_65,
-            age_over_65
+            ecg_1,ecg_2,slope_flat, slope_upsloping, age_55_65,
+            age_over_65, age_under_40
         ]]
 
         # work on this
         Y_pred = model.predict_proba(patients_diagnosis)
         survival_pct = Y_pred[0][1] * 100
         logger.info(survival_pct)
-        model_output = f'Your Character has {survival_pct:.1f}% Chance of Surviving!'
+        model_output = f'{survival_pct:.1f}% Positive'
         return render_template("index.html",
             model_output = model_output,
             inputed_Age = inputed_Age,
@@ -149,7 +153,8 @@ def get_user_input():
             inputed_mhr = inputed_mhr,
             inputed_EA = inputed_EA,
             inputed_Oldpeak = inputed_Oldpeak,
-            inputed_sts = inputed_sts) 
+            inputed_sts = inputed_sts,
+            float_range = float_range) 
     else:
         return render_template("index.html",
             model_output = " ",
@@ -163,12 +168,13 @@ def get_user_input():
             inputed_mhr = DEFAULT_MAX_HEART_RATE,
             inputed_EA = DEFAULT_EXERCISE_ANGINA,
             inputed_Oldpeak = DEFAULT_OLDPEAK,
-            inputed_sts = DEFAULT_ST_SLOPE)
+            inputed_sts = DEFAULT_ST_SLOPE,
+            float_range = float_range)
 
 
 if __name__ == '__main__':
     logger.info("Heart Disease Flask Api Starting")
 
     app.run(
-        debug = False
+        debug = True
     )
