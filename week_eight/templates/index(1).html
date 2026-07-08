@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Titanic_sim</title>
+</head>
+<body>
+    <form id="submit_data" method = "POST" action="{{ url_for('get_user_input') }}">
+        <table class = "table">
+            <!--The main Header -->
+            <tr>
+                <td width="300px" style="text-align:center">
+                    <h1><b>Design Your Titanic Character</b></h1>
+                </td>
+            </tr>
+                <td>
+                    <table>
+                       <tr>
+                            <td><label>Age of Character</label></td>
+                            <td>
+                                <select class="form-select" name="inputed_Age">
+                                {% for age in range(0, 81) %}
+                                <option value="{{ age }}" {% if age == inputed_Age|int %}selected{% endif %}>{{ age }}</option>
+                                {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label>Gender of Character</label></td>
+                            <td>
+                                <select class="form-select" name="inputed_gender">
+                                {% for g in ["Male", "Female"] %}
+                                <option value="{{ g }}" {% if age == inputed_gender %}selected{% endif %}>{{ g }}</option>
+                                {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+
+                         <tr>
+                            <td><label>Title of Character</label></td>
+                            <td>
+                                <select class="form-select" name="inputed_title">
+                                {% for title in ['Master', 'Miss', 'Mlle', "Mr", "Mrs", "Rev", "Unknown"] %}
+                                <option value="{{ title }}" {% if title == inputed_title %}selected{% endif %}>{{ title }}</option>
+                                {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label>Number of Characters Siblings/Spouses</label></td>
+                            <td>
+                            <select class="form-select" name="inputed_sibsp">
+                                {% for n in range(0, 10) %}
+                                <option value="{{ n }}" {% if n == inputed_sibsp|int %}selected{% endif %}>{{ n }}</option>
+                                {% endfor %}
+                            </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label>Number of Characters Parents/Children</label></td>
+                            <td>
+                            <select class="form-select" name="inputed_parch">
+                                {% for p in range(0, 10) %}
+                                <option value="{{ p }}" {% if n == inputed_parch|int %}selected{% endif %}>{{ p }}</option>
+                                {% endfor %}
+                            </select>
+                            </td>
+                        </tr>
+            
+
+                        <tr>
+                            <td><label>Port of Embarkation</label></td>
+                            <td>
+                                <select class="form-select" name="inputed_embarked">
+                                {% for port in ['Cherbourg', 'Queenstown', 'Southampton'] %}
+                                <option value="{{ port }}" {% if port == inputed_embarked %}selected{% endif %}>{{ port }}</option>
+                                {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td><label>Ship Class of character </label></td>
+                            <td>
+                                <select class="form-select" name="inputed_class">
+                                {% for c in ['First', 'Second', 'Third'] %}
+                                    <option value="{{ c }}" {% if c == inputed_class %}selected{% endif %}>{{ c }}</option>
+                                {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+
+                         <td>{{ model_results }}<br>
+                            {{model_output}}
+                        </td>
+                        
+                        <!-- Button row -->
+                        <tr>
+                            <td><button class="btn btn-primary" type="submit" style="width:150px; height:50px;">Check if they survived</button></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+
+                    </table>
+                </td>
+            <tr>
+
+            </tr>
+        </table>
+
+    </form>
+</body>
+</html>
