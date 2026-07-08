@@ -20,7 +20,7 @@
                             <td><label>Age of Patient</label></td>
                             <td>
                                 <select class="form-select" name="inputed_Age">
-                                {% for age in range(0, 81) %}
+                                {% for age in range(0, 77) %}
                                 <option value="{{ age }}" {% if age == inputed_Age|int %}selected{% endif %}>{{ age }}</option>
                                 {% endfor %}
                                 </select>
@@ -72,7 +72,7 @@
                             <td><label>Patient's Fasting Blood sugar level</label></td>
                             <td>
                                 <select class="form-select" name="inputed_fbs">
-                                {% for f in ['Present', 'Not Present'] %}
+                                {% for f in ['Above 120mg/dL', 'Below 120mg/dL'] %}
                                 <option value="{{ f }}" {% if f == inputed_fbs %}selected{% endif %}>{{ f }}</option>
                                 {% endfor %}
                                 </select>
@@ -105,7 +105,7 @@
                             <td><label>Patient's Excercise Angina</label></td>
                             <td>
                                 <select class="form-select" name="inputed_EA">
-                                {% for ea in ['Present', 'Not Present'] %}
+                                {% for ea in ['Exercise-Induced Angina', 'Not Present'] %}
                                 <option value="{{ ea }}" {% if ea == inputed_EA %}selected{% endif %}>{{ ea }}</option>
                                 {% endfor %}
                                 </select>
